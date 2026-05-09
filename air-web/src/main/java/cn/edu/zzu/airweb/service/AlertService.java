@@ -125,10 +125,57 @@ public class AlertService {
 
     /**
      * 检查规则并创建预警
+     * 根据规则中定义的条件表达式，查询最新监测数据并判断是否超过阈值
      */
     private void checkAndCreateAlert(AlertRule rule) {
-        // 根据规则条件检查是否触发预警
-        // 这里简化实现，实际应该根据rule.getCondition()解析并执行
         log.debug("检查预警规则: {}", rule.getName());
+        try {
+            String condition = rule.getCondition();
+            if (condition == null || condition.isEmpty()) return;
+
+            // 解析条件格式: "pollutant > threshold"
+            String[] parts = condition.split("\\s+");
+            if (parts.length < 3) return;
+
+            String pollutant = parts[0].toLowerCase();
+            String operator = parts[1];
+            double threshold = Double.parseDouble(parts[2]);
+
+            // 查询最新数据中该污染物的最大值
+            List<Map<String, Object>> realtimeData = alertMapper.selectActiveAlerts();
+            if (realtimeData == null || realtimeData.isEmpty()) return;
+
+            for (Map<String, Object> data : realtimeData) {
+                Object valueObj = data.get(pollutant);
+                if (valueObj == null) continue;
+
+                double actualValue = ((Number) valueObj).doubleValue();
+                boolean triggered = false;
+
+                switch (operator) {
+                    case ">": triggered = actualValue > threshold; break;
+                    case ">=": triggered = actualValue >= threshold; break;
+                    case "<": triggered = actualValue < threshold; break;
+                    case "<=": triggered = actualValue <= threshold; break;
+                    default: break;
+                }
+
+                if (triggered) {
+                    alertMapper.insertAlertRecord(
+                            rule.getId(),
+                            rule.getLevel(),
+                            pollutant,
+                            threshold,
+                            actualValue,
+                            LocalDateTime.now()
+                    );
+                    log.warn("触发预警: 规则[{}], {}={} {} {}",
+                            rule.getName(), pollutant, actualValue, operator, threshold);
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            log.error("预警规则检查异常: rule={}, error={}", rule.getName(), e.getMessage());
+        }
     }
 }

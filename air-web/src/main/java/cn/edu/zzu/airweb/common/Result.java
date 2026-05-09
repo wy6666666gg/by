@@ -9,6 +9,14 @@ public class Result<T> {
     private String message;
     private T data;
     private Long timestamp;
+
+    public static <T> Result<T> success() {
+        Result<T> result = new Result<>();
+        result.setCode(200);
+        result.setMessage("success");
+        result.setTimestamp(System.currentTimeMillis());
+        return result;
+    }
     
     public static <T> Result<T> success(T data) {
         Result<T> result = new Result<>();

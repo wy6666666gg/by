@@ -68,4 +68,14 @@ public interface AlertMapper {
             "WHERE create_time >= DATE_SUB(NOW(), INTERVAL 7 DAY) " +
             "GROUP BY alert_type")
     List<Map<String, Object>> countAlertsByType();
+
+    @Insert("INSERT INTO alert_record (rule_id, level, alert_type, threshold_value, " +
+            "actual_value, status, create_time) " +
+            "VALUES (#{ruleId}, #{level}, #{alertType}, #{threshold}, #{actualValue}, 'active', #{createTime})")
+    void insertAlertRecord(@Param("ruleId") Long ruleId,
+                           @Param("level") String level,
+                           @Param("alertType") String alertType,
+                           @Param("threshold") double threshold,
+                           @Param("actualValue") double actualValue,
+                           @Param("createTime") LocalDateTime createTime);
 }

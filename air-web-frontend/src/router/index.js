@@ -6,6 +6,7 @@ import History from '../views/History.vue'
 import Prediction from '../views/Prediction.vue'
 import RandomForestPrediction from '../views/RandomForestPrediction.vue'
 import CorrelationAnalysis from '../views/CorrelationAnalysis.vue'
+import SpatialAnalysis from '../views/SpatialAnalysis.vue'
 import DataQuery from '../views/DataQuery.vue'
 import DataManage from '../views/DataManage.vue'
 import RealtimeDataManage from '../views/RealtimeDataManage.vue'
@@ -19,6 +20,7 @@ const routes = [
       { path: 'realtime', name: 'RealtimeDashboard', component: RealtimeDashboard },
       { path: 'history', name: 'History', component: History },
       { path: 'correlation', name: 'CorrelationAnalysis', component: CorrelationAnalysis },
+      { path: 'spatial', name: 'SpatialAnalysis', component: SpatialAnalysis },
       { path: 'prediction', name: 'Prediction', component: Prediction },
       { path: 'rf-prediction', name: 'RandomForestPrediction', component: RandomForestPrediction },
       { path: 'query', name: 'DataQuery', component: DataQuery },

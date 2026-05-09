@@ -22,6 +22,10 @@
           <el-icon><Share /></el-icon>
           <span>相关性分析</span>
         </router-link>
+        <router-link to="/spatial" :class="{ active: $route.path === '/spatial' }">
+          <el-icon><MapLocation /></el-icon>
+          <span>空间分析</span>
+        </router-link>
         <router-link to="/prediction" :class="{ active: $route.path === '/prediction' }">
           <el-icon><MagicStick /></el-icon>
           <span>预测分析</span>
@@ -76,6 +80,7 @@ const pageTitle = computed(() => {
     '/realtime': '实时监测大屏',
     '/history': '历史数据分析',
     '/correlation': '污染物相关性分析',
+    '/spatial': '空间分布分析',
     '/prediction': 'AQI预测分析',
     '/rf-prediction': '随机森林智能预测',
     '/query': '空气质量数据查询',

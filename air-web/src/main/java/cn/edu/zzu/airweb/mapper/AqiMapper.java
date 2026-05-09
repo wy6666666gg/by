@@ -95,21 +95,25 @@ public interface AqiMapper {
                                                   @Param("pollutant") String pollutant);
 
     // 相关性分析相关
-    @Select("SELECT pm25, pm10, so2, no2, co, o3, " +
-            "temperature, humidity, wind_speed, pressure " +
+    @Select("<script>" +
+            "SELECT pm25, pm10, so2, no2, co, o3, " +
+            "temperature, humidity, wind_speed AS windSpeed, pressure " +
             "FROM dwd_air_quality_dt " +
             "WHERE monitor_date BETWEEN #{startDate} AND #{endDate} " +
             "<if test='stationCode != null'> AND station_code = #{stationCode} </if> " +
-            "ORDER BY monitor_date, monitor_hour")
+            "ORDER BY monitor_date, monitor_hour" +
+            "</script>")
     List<Map<String, Object>> selectCorrelationData(@Param("startDate") LocalDate startDate,
                                                      @Param("endDate") LocalDate endDate,
                                                      @Param("stationCode") String stationCode);
 
-    @Select("SELECT ${factorX} as x, ${factorY} as y " +
+    @Select("<script>" +
+            "SELECT ${factorX} as x, ${factorY} as y " +
             "FROM dwd_air_quality_dt " +
             "WHERE monitor_date BETWEEN #{startDate} AND #{endDate} " +
             "AND ${factorX} IS NOT NULL AND ${factorY} IS NOT NULL " +
-            "<if test='stationCode != null'> AND station_code = #{stationCode} </if>")
+            "<if test='stationCode != null'> AND station_code = #{stationCode} </if>" +
+            "</script>")
     List<Map<String, Object>> selectScatterData(@Param("factorX") String factorX,
                                                  @Param("factorY") String factorY,
                                                  @Param("startDate") LocalDate startDate,
