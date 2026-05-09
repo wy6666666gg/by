@@ -13,8 +13,6 @@
     <description>基于Hive的城市空气质量分析与预测系统</description>
 
     <modules>
-        <module>air-data-collector</module>
-        <module>air-spark-analysis</module>
         <module>air-web</module>
     </modules>
 
