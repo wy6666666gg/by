@@ -4,7 +4,7 @@
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.7-green.svg)](https://spring.io/projects/spring-boot)
 [![Vue](https://img.shields.io/badge/Vue-3.0-green.svg)](https://vuejs.org/)
 
-> 郑州大学大数据课程设计项目 - 基于Hadoop生态的空气质量大数据分析与预测平台
+> 毕业设计 - 基于Hadoop生态的空气质量大数据分析与预测平台
 
 ## 📋 项目简介
 
@@ -130,13 +130,3 @@ npm run dev
 - [前端开发指南](air-web-frontend/README.md)
 - [后端开发指南](air-web/README.md)
 
-## 👥 团队
-
-- **郑州大学** - 计算机与人工智能学院
-- 大数据技术与应用课程设计项目
-
----
-
-<p align="center">
-  <sub>Built with ❤️ by ZZU Air Quality Team</sub>
-</p>
