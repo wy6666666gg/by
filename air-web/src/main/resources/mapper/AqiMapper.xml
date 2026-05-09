@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.edu.zzu.airweb.mapper.AqiMapper">
+
+    <!-- 查询实时AQI -->
+    <select id="selectRealtimeAqi" resultType="map">
+        SELECT 
+            station_code AS stationCode,
+            station_name AS stationName,
+            district_name AS districtName,
+            latitude,
+            longitude,
+            aqi AS aqi,
+            aqi_level AS aqiLevel,
+            aqi_level_desc AS levelDesc,
+            pm25, pm10, so2, no2, co, o3,
+            update_time AS updateTime
+        FROM ads_realtime_aqi
+        WHERE is_active = 1
+        ORDER BY aqi DESC
+    </select>
+    
+    <!-- 查询历史AQI -->
+    <select id="selectHistoryAqi" resultType="map">
+        SELECT 
+            station_code AS stationCode,
+            station_name AS stationName,
+            monitor_time AS monitorTime,
+            pm25, pm10, so2, no2, co, o3,
+            aqi, aqi_level AS aqiLevel,
+            quality_level AS qualityLevel
+        FROM dwd_air_quality_dt
+        WHERE station_code = #{stationCode}
+          AND monitor_time BETWEEN #{startDate} AND #{endDate}
+        ORDER BY monitor_time DESC
+    </select>
+    
+    <!-- 查询趋势数据 -->
+    <select id="selectTrend" resultType="map">
+        <choose>
+            <when test="type == 'hourly'">
+                SELECT 
+                    hour AS timePoint,
+                    AVG(aqi_avg) AS avgAqi,
+                    AVG(pm25_avg) AS avgPm25,
+                    MAX(aqi_max) AS maxAqi,
+                    MIN(aqi_min) AS minAqi
+                FROM dws_station_hour
+                <where>
+                    <if test="stationCode != null">
+                        station_code = #{stationCode}
+                    </if>
+                </where>
+                GROUP BY hour
+                ORDER BY hour
+            </when>
+            <when test="type == 'daily'">
+                SELECT 
+                    CONCAT(year, '-', LPAD(month, 2, '0'), '-', LPAD(day, 2, '0')) AS timePoint,
+                    AVG(aqi_avg) AS avgAqi,
+                    AVG(pm25_avg) AS avgPm25
+                FROM dws_station_hour
+                <where>
+                    <if test="stationCode != null">
+                        station_code = #{stationCode}
+                    </if>
+                </where>
+                ORDER BY timePoint DESC
+                LIMIT ${days != null ? days : 30}
+            </when>
+            <otherwise>
+                SELECT 
+                    CONCAT(year, '-', LPAD(month, 2, '0')) AS timePoint,
+                    AVG(aqi_avg) AS avgAqi,
+                    AVG(pm25_avg) AS avgPm25
+                FROM dws_month_summary
+                <where>
+                    <if test="stationCode != null">
+                        district_code = #{stationCode}
+                    </if>
+                </where>
+                ORDER BY timePoint
+            </otherwise>
+        </choose>
+    </select>
+    
+    <!-- 查询站点AQI详情 -->
+    <select id="selectStationAqi" resultType="map">
+        SELECT 
+            s.station_code AS stationCode,
+            s.station_name AS stationName,
+            s.latitude,
+            s.longitude,
+            r.aqi,
+            r.aqi_level AS aqiLevel,
+            r.pm25, r.pm10, r.so2, r.no2, r.co, r.o3,
+            r.update_time AS updateTime,
+            (SELECT COUNT(*) FROM dws_station_hour 
+             WHERE station_code = #{stationCode} 
+               AND day >= DATE_SUB(CURRENT_DATE(), 30)
+               AND aqi_avg &lt;= 100) AS cleanDays30,
+            (SELECT AVG(aqi_avg) FROM dws_station_hour 
+             WHERE station_code = #{stationCode} 
+               AND day >= DATE_SUB(CURRENT_DATE(), 30)) AS avgAqi30
+        FROM dim_station s
+        LEFT JOIN ads_realtime_aqi r ON s.station_code = r.station_code
+        WHERE s.station_code = #{stationCode}
+    </select>
+    
+    <!-- 查询统计信息 -->
+    <select id="selectStatistics" resultType="map">
+        SELECT 
+            COUNT(DISTINCT station_code) AS stationCount,
+            AVG(aqi) AS avgAqi,
+            MAX(aqi) AS maxAqi,
+            MIN(aqi) AS minAqi,
+            SUM(CASE WHEN aqi &lt;= 100 THEN 1 ELSE 0 END) AS cleanDays,
+            AVG(CASE WHEN aqi &lt;= 100 THEN 1.0 ELSE 0.0 END) AS cleanRate,
+            (SELECT pollutant FROM ads_daily_pollutant WHERE stat_date = #{date}) AS mainPollutant
+        FROM dwd_air_quality_dt
+        WHERE dt = #{date}
+    </select>
+
+</mapper>

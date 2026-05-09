@@ -1,0 +1,75 @@
+spring:
+  application:
+    name: air-quality-web
+    
+  datasource:
+    # MySQL数据源（存储业务数据）
+    mysql:
+      url: jdbc:mysql://localhost:3306/air_quality_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+      username: root
+      password: ${DB_PASSWORD:123456}
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      type: com.alibaba.druid.pool.DruidDataSource
+      druid:
+        initial-size: 5
+        min-idle: 5
+        max-active: 20
+        max-wait: 60000
+        time-between-eviction-runs-millis: 60000
+        min-evictable-idle-time-millis: 300000
+    # Hive数据源（存储分析数据）
+    hive:
+      url: jdbc:hive2://localhost:10000/air_quality_db
+      username: ${HIVE_USER:hive}
+      driver-class-name: org.apache.hive.jdbc.HiveDriver
+      type: com.alibaba.druid.pool.DruidDataSource
+
+  redis:
+    host: localhost
+    port: 6379
+    password: ${REDIS_PASSWORD:}
+    database: 0
+    timeout: 3000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1ms
+
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+# Swagger配置
+swagger:
+  title: 空气质量分析系统API
+  description: 基于Hive的城市空气质量分析与预测系统接口文档
+  version: 1.0.0
+  base-package: cn.edu.zzu.airweb.controller
+
+# Jwt配置
+jwt:
+  secret: ${JWT_SECRET:air-quality-secret-key-2024}
+  expiration: 86400000  # 24小时
+  
+# Spark配置
+spark:
+  master: yarn
+  app-name: air-quality-analysis
+  hive-warehouse: /user/hive/warehouse/air_quality_db.db

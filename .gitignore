@@ -1,0 +1,73 @@
+    # ============================================
+# 空气质量分析系统 - Git忽略配置
+# ============================================
+
+# ---------- IDE & 编辑器 ----------
+.idea/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ---------- 编译输出 ----------
+target/
+build/
+out/
+*.class
+*.jar
+*.war
+*.ear
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# ---------- 数据文件 ----------
+air-data-collector/data/
+air-data-collector/logs/
+*.log
+*.csv
+*.json
+!air-data-collector/config/*.json
+
+# ---------- 环境配置 ----------
+.env
+.env.local
+.env.*.local
+application-local.yml
+application-dev.yml
+application-prod.yml
+
+# ---------- 测试报告 ----------
+htmlcov/
+.coverage
+.pytest_cache/
+.tox/
+*.cover
+.hypothesis/
+
+# ---------- 操作系统 ----------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------- 其他 ----------
+*.tmp
+*.temp
+*.bak
+*.cache
+node_modules/
+dist/

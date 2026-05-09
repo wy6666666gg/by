@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.edu.zzu.airweb.mapper.PredictionMapper">
+
+    <!-- 查询预测数据 -->
+    <select id="selectPrediction" resultType="map">
+        SELECT 
+            station_code AS stationCode,
+            station_name AS stationName,
+            predict_time AS predictTime,
+            predict_hour AS predictHour,
+            aqi_pred AS aqiPred,
+            aqi_level_pred AS aqiLevelPred,
+            confidence,
+            model_type AS modelType,
+            pm25_pred AS pm25Pred,
+            pm10_pred AS pm10Pred
+        FROM ads_aqi_prediction
+        WHERE station_code = #{stationCode}
+          AND predict_time > CURRENT_TIMESTAMP()
+        ORDER BY predict_time
+        LIMIT 72
+    </select>
+    
+    <!-- 查询24小时预测 -->
+    <select id="select24HourPrediction" resultType="cn.edu.zzu.airweb.entity.AqiPrediction">
+        SELECT 
+            station_code, station_name, predict_time,
+            predict_hour, aqi_pred, aqi_level_pred,
+            confidence, model_type, create_time
+        FROM ads_aqi_prediction
+        <where>
+            <if test="stationCode != null">
+                station_code = #{stationCode}
+            </if>
+            AND predict_time BETWEEN CURRENT_TIMESTAMP() 
+                AND TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL 24 HOUR)
+        </where>
+        ORDER BY predict_time
+    </select>
+    
+    <!-- 查询72小时预测 -->
+    <select id="select72HourPrediction" resultType="cn.edu.zzu.airweb.entity.AqiPrediction">
+        SELECT 
+            station_code, station_name, predict_time,
+            predict_hour, aqi_pred, aqi_level_pred,
+            confidence, pm25_pred, pm10_pred,
+            model_type, create_time
+        FROM ads_aqi_prediction
+        <where>
+            <if test="stationCode != null">
+                station_code = #{stationCode}
+            </if>
+            AND predict_time > CURRENT_TIMESTAMP()
+        </where>
+        ORDER BY predict_time
+        LIMIT 72
+    </select>
+    
+    <!-- 查询预测对比 -->
+    <select id="selectComparison" resultType="map">
+        SELECT 
+            station_code AS stationCode,
+            station_name AS stationName,
+            MAX(CASE WHEN predict_hour = 24 THEN aqi_pred END) AS aqi24h,
+            MAX(CASE WHEN predict_hour = 48 THEN aqi_pred END) AS aqi48h,
+            MAX(CASE WHEN predict_hour = 72 THEN aqi_pred END) AS aqi72h,
+            AVG(confidence) AS avgConfidence
+        FROM ads_aqi_prediction
+        WHERE station_code IN 
+        <foreach collection="stationCodes" item="code" open="(" separator="," close=")">
+            #{code}
+        </foreach>
+          AND predict_time > CURRENT_TIMESTAMP()
+        GROUP BY station_code, station_name
+    </select>
+
+</mapper>
